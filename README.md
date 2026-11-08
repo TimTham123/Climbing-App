@@ -73,4 +73,4 @@ tests/
 
 ## Deploying
 
-The included workflow (`.github/workflows/pages.yml`) runs the tests on every pull request and, on pushes to `main`, publishes `dist/` to GitHub Pages. To enable it, set **Settings → Pages → Source** to **GitHub Actions** (GitHub Pages on a private repository requires a paid plan). Any static host works too — upload the `dist/` folder.
+The included workflow (`.github/workflows/pages.yml`) runs the tests on every pull request and, on pushes to `main` (or the current development branch), publishes `dist/` to GitHub Pages. To enable it, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions** (not "Deploy from a branch", which would serve the unbuilt source and show a blank screen) (GitHub Pages on a private repository requires a paid plan). Any static host works too — upload the `dist/` folder.
