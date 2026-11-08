@@ -110,6 +110,13 @@ async function main() {
       await rows.getByTestId('log-set').click();
       await page.waitForTimeout(200);
       check((await rows.innerText()).includes('30 kg'), 'weight recorded');
+      await rows.getByTestId('item-done').click();
+      await page.waitForTimeout(200);
+      check((await rows.locator('.tick.on').count()) === 1, 'partly logged exercise can be marked complete');
+      await rows.locator('.ex-head').click();
+      await rows.getByTestId('item-done').click();
+      await page.waitForTimeout(200);
+      check((await rows.locator('.tick.on').count()) === 0, 'and marked not done again');
 
       const curls = item('hammer-curls');
       await curls.locator('.ex-head').click();
@@ -294,6 +301,20 @@ async function main() {
       await t('log-session').first().waitFor();
       await page.waitForTimeout(300);
       check((await t('log-session').count()) === 1, 'one session left');
+    });
+
+    await step('Rising or high discomfort is flagged without diagnosing', async () => {
+      await page.goto(BASE + '#/today');
+      await t('open-checkin').click();
+      await t('ci-finger').getByRole('radio', { name: '6', exact: true }).click();
+      await t('checkin-save').click();
+      await t('discomfort-flag').waitFor();
+      const txt = await t('discomfort-flag').innerText();
+      check(txt.includes('reducing or modifying'), 'flag suggests reducing or modifying loading');
+      check(txt.includes('not a diagnosis') && !/train through it/i.test(txt.replace('Avoid training through pain', '')), 'flag is not a diagnosis and does not encourage training through pain');
+      await page.goto(BASE + '#/progress/strength');
+      await page.waitForTimeout(300);
+      check((await page.getByText('Progression suggestions are paused').count()) === 1, 'progression suggestions paused while flagged');
     });
 
     check(errors.length === 0, `no console errors${errors.length ? `: ${errors.slice(0, 3).join(' | ')}` : ''}`);

@@ -77,6 +77,19 @@ export function ExerciseCard(p: ExerciseCardProps) {
             <CheckLogger {...p} />
           )}
           <div className="ex-actions">
+            {(item.mode === 'reps' || item.mode === 'time' || item.mode === 'count') && item.status !== 'skipped' && (
+              <button
+                className="btn btn-sm"
+                onClick={async () => {
+                  const completing = item.status !== 'done';
+                  await updateItem(p.sessionId, item.id, (i) => void (i.status = completing ? 'done' : 'pending'));
+                  if (completing) p.onLogged(true);
+                }}
+                data-testid="item-done"
+              >
+                <Icon name={item.status === 'done' ? 'refresh' : 'check'} /> {item.status === 'done' ? 'Not done' : 'Done'}
+              </button>
+            )}
             {item.status !== 'skipped' ? (
               <button className="btn btn-sm" onClick={() => updateItem(p.sessionId, item.id, (i) => void (i.status = 'skipped')).then(() => p.onLogged(true))} data-testid="item-skip">
                 <Icon name="skip" /> Skip

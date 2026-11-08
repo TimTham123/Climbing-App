@@ -12,11 +12,14 @@ import { newClimb, startCustomSession, startProgrammeSession, skipPlannedDay, to
 import { blockPosition, hangboardUnlockDate, HANGBOARD_FROM_WEEK } from '../domain/phase';
 import { formatRx, newExtraItem, programmeForDate, sessionCompletion } from '../domain/session';
 import { discomfortFlags, NOT_A_DIAGNOSIS, regionSeries } from '../domain/recovery';
-import { fingerLoadWeek, plannedFingerStyles } from '../domain/fingerLoad';
+import { fingerLoadWeek, isFingerStyle, plannedFingerStyles } from '../domain/fingerLoad';
 import { CLIMB_STYLE_LABELS } from '../data/programme';
-import { formatDuration, formatLong, formatShort, startOfWeek, weekdayIndex, WEEKDAY_NAMES, daysBetween, type ISODate } from '../lib/dates';
+import { addDays, formatWeekRange, formatDuration, formatLong, formatShort, startOfWeek, weekdayIndex, WEEKDAY_NAMES, daysBetween, type ISODate } from '../lib/dates';
 import { uid, clone } from '../lib/id';
 import { categoryColor } from './SessionScreen';
+import { useAllData } from '../hooks/useAllData';
+import { weeklySummary } from '../domain/summary';
+import { gradeLabel } from '../lib/grades';
 import type { ChecklistItem, ClimbEntry, HangSession, Session } from '../db/types';
 
 export function TodayScreen() {
@@ -72,15 +75,45 @@ export function TodayScreen() {
     return { id: uid('hng_'), date: today, fromTemplate, blocks, notes: null, createdAt: Date.now(), updatedAt: Date.now() };
   };
   const todayFinger = fingerDays.find((d) => d.date === today);
+  // Finger loading today and on neighbouring days, so a hangboard decision has context.
+  const loadOn = (date: ISODate) => {
+    const done = Array.from(new Set((climbs ?? []).filter((c) => c.date === date && isFingerStyle(c.style)).map((c) => c.style)));
+    const planned = plannedFingerStyles(programmes, date);
+    return { done, planned };
+  };
+  const yesterday = loadOn(addDays(today, -1));
+  const tomorrow = loadOn(addDays(today, 1));
+  const styleList = (list: string[]) => list.map((s) => CLIMB_STYLE_LABELS[s as keyof typeof CLIMB_STYLE_LABELS].toLowerCase()).join(' and ');
+  const hangNotes: string[] = [];
+  if (todayFinger && (todayFinger.climbing.styles.length > 0 || todayFinger.planned.length > 0)) {
+    hangNotes.push(
+      `Fingers are ${todayFinger.climbing.styles.length ? 'already loaded' : 'scheduled to be loaded'} today through ${styleList(todayFinger.climbing.styles.length ? todayFinger.climbing.styles : todayFinger.planned)}.`,
+    );
+  }
+  if (yesterday.done.length) hangNotes.push(`Yesterday: ${styleList(yesterday.done)}.`);
+  if (tomorrow.planned.length) hangNotes.push(`Tomorrow's plan includes ${styleList(tomorrow.planned)}.`);
+  const protocolNote =
+    !settings.hangboardUnlocked && (pos?.week ?? 0) < HANGBOARD_FROM_WEEK
+      ? unlockDate
+        ? `The introductory protocol starts in week ${HANGBOARD_FROM_WEEK} (${formatShort(unlockDate)}). You can still record hangs you choose to do.`
+        : 'The introductory protocol becomes available after the first four weeks of your training block.'
+      : null;
   const hangContext =
-    todayFinger && (todayFinger.climbing.styles.length > 0 || todayFinger.planned.length > 0) ? (
-      <div className="alert warn">
-        <Icon name="hand" />
-        <div>
-          Fingers are {todayFinger.climbing.styles.length ? 'already loaded' : 'scheduled to be loaded'} today through{' '}
-          {(todayFinger.climbing.styles.length ? todayFinger.climbing.styles : todayFinger.planned).map((s) => CLIMB_STYLE_LABELS[s].toLowerCase()).join(' and ')}.
-        </div>
-      </div>
+    hangNotes.length || protocolNote ? (
+      <>
+        {protocolNote && (
+          <div className="alert info">
+            <Icon name="info" />
+            <div>{protocolNote}</div>
+          </div>
+        )}
+        {hangNotes.length > 0 && (
+          <div className="alert warn">
+            <Icon name="hand" />
+            <div>{hangNotes.join(' ')}</div>
+          </div>
+        )}
+      </>
     ) : null;
 
   return (
@@ -304,6 +337,8 @@ export function TodayScreen() {
         </div>
       )}
 
+      <LastWeekCard today={today} />
+
       {/* Quick log */}
       <div className="section-label">Quick log</div>
       <div className="quick-grid">
@@ -471,5 +506,28 @@ function OtherWorkoutSheet({ open, today, onClose, onStart, days }: { open: bool
         </button>
       </div>
     </Sheet>
+  );
+}
+
+/** Compact summary of the previous week, shown from Monday onwards. */
+function LastWeekCard({ today }: { today: ISODate }) {
+  const data = useAllData();
+  const lastWeek = addDays(startOfWeek(today), -7);
+  const s = useMemo(() => (data ? weeklySummary({ ...data, today, weekStart: lastWeek }) : null), [data, today, lastWeek]);
+  if (!s || (s.consistency.completed === 0 && s.climbing.problems === 0 && s.recovery.checkins === 0)) return null;
+  return (
+    <button className="card tight row" style={{ width: '100%', textAlign: 'left', color: 'inherit' }} onClick={() => navigate(`progress/week/${lastWeek}`)} data-testid="last-week">
+      <Icon name="chart" size={22} />
+      <div className="grow">
+        <div className="strong small">Last week · {formatWeekRange(lastWeek)}</div>
+        <div className="xsmall muted tabular">
+          {s.consistency.completed}/{s.consistency.planned} sessions
+          {s.consistency.trainingMinutes ? ` · ${formatDuration(s.consistency.trainingMinutes)}` : ''}
+          {s.consistency.completionPct != null ? ` · ${s.consistency.completionPct}% of exercises` : ''}
+          {s.climbing.topSent != null ? ` · top send ${gradeLabel(s.climbing.topSent)}` : ''}
+        </div>
+      </div>
+      <Icon name="chevron" size={18} />
+    </button>
   );
 }

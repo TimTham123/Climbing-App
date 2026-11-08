@@ -5,14 +5,14 @@ import { FingerWeek } from '../../components/FingerWeek';
 import { weeklySeries, weeklySummary, weekStarts } from '../../domain/summary';
 import { CLIMB_STYLE_LABELS } from '../../data/programme';
 import { GRIP_LABELS } from '../../data/defaults';
-import { addDays, formatDuration, formatWeekRange, startOfWeek, type ISODate } from '../../lib/dates';
+import { addDays, formatDuration, formatWeekRange, isValidISODate, startOfWeek, type ISODate } from '../../lib/dates';
 import { gradeLabel } from '../../lib/grades';
 import { fmtKg, fmtNum } from '../../lib/format';
 import type { AllData } from '../../hooks/useAllData';
 import { ChartCard, Stat, weekLabel, weekTitle } from './common';
 
-export function WeekTab({ data, today }: { data: AllData; today: ISODate }) {
-  const [weekStart, setWeekStart] = useState(startOfWeek(today));
+export function WeekTab({ data, today, initialWeek }: { data: AllData; today: ISODate; initialWeek?: string }) {
+  const [weekStart, setWeekStart] = useState(initialWeek && isValidISODate(initialWeek) ? startOfWeek(initialWeek) : startOfWeek(today));
   const input = { ...data, today };
   const s = useMemo(() => weeklySummary({ ...input, weekStart }), [data, today, weekStart]);
   const trend = useMemo(() => weeklySeries(input, weekStarts(startOfWeek(today), 8)), [data, today]);

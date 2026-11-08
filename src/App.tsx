@@ -58,13 +58,13 @@ export function App() {
   }
   if (!ready) return <div className="screen" />;
 
-  const [top, sub] = route;
+  const [top, sub, third] = route;
   const activeTab = top === 'session' ? 'today' : NAV.some((n) => n.id === top) ? top : 'today';
   let screen;
   if (top === 'session' && sub) screen = <SessionScreen id={sub} key={sub} />;
   else if (top === 'schedule' && sub === 'edit') screen = <ProgrammeEditor />;
   else if (top === 'schedule') screen = <ScheduleScreen />;
-  else if (top === 'progress') screen = <ProgressScreen tab={sub} />;
+  else if (top === 'progress') screen = <ProgressScreen tab={sub} param={third} />;
   else if (top === 'log') screen = <LogScreen />;
   else if (top === 'profile') screen = <ProfileScreen section={sub} />;
   else screen = <TodayScreen />;

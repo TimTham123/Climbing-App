@@ -22,7 +22,7 @@ const TABS = [
   { id: 'body', label: 'Body' },
 ] as const;
 
-export function ProgressScreen({ tab }: { tab?: string }) {
+export function ProgressScreen({ tab, param }: { tab?: string; param?: string }) {
   const data = useAllData();
   const today = useToday();
   const [climb, setClimb] = useState<ClimbEntry | null>(null);
@@ -44,7 +44,7 @@ export function ProgressScreen({ tab }: { tab?: string }) {
         ))}
       </div>
       {!data ? null : current === 'week' ? (
-        <WeekTab data={data} today={today} />
+        <WeekTab data={data} today={today} initialWeek={param} key={param ?? 'current'} />
       ) : current === 'strength' ? (
         <StrengthTab data={data} today={today} />
       ) : current === 'climbing' ? (
