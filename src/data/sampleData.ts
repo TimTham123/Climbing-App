@@ -66,7 +66,7 @@ export function generateSampleData(today: ISODate, seed = 7): SampleData {
 
   const projects: Project[] = [
     {
-      id: 'sample-prj-1', name: 'Blue roof traverse', grade: 5, wall: 'Gym boulder wall', angle: null, location: 'Main cave', totalMoves: 9,
+      id: 'sample-prj-1', name: 'Cave roof traverse', grade: 5, wall: 'Gym boulder wall', angle: null, location: 'Main cave', totalMoves: 9,
       status: 'sent', createdAt: 0, sentDate: null, notes: 'Heel hook at move 5 is key.',
       moves: [
         { id: 'm1', text: 'Start to undercling', status: 'linked' },
@@ -219,7 +219,7 @@ export function generateSampleData(today: ISODate, seed = 7): SampleData {
           }
           climbs.push({
             id: `sample-clb-${d}-${item.id}-${k}`, date: d, sessionId: s.id, sessionItemId: item.id, style, wall, angle,
-            grade: Math.max(-1, g), name, attempts, sent, difficulty: between(5, 9),
+            grade: Math.min(7, Math.max(0, g)), name, attempts, sent, difficulty: between(5, 9),
             holds: style === 'board' ? [pick(['Pinch', 'Sloper', 'Edge', 'Crimp']), pick(['Dynamic', 'Body tension'])] : [],
             projectId, highPoint, moves: style === 'project' ? 'Working the crux sequence.' : null, notes: null, company: style === 'social' || style === 'project' ? 'friends' : 'alone',
             createdAt: t0 + k * 60000, updatedAt: t0 + k * 60000,

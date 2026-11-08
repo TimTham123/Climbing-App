@@ -16,6 +16,7 @@ import { GROUP_LABELS, LIBRARY, MOBILITY_GROUPS, ROM_METRICS, romMetric, type Li
 import { GRIP_LABELS, GRIPS } from '../../data/defaults';
 import { GradePicker } from './ClimbSheet';
 import { clone, uid } from '../../lib/id';
+import { gradeLabel } from '../../lib/grades';
 import { db } from '../../db/db';
 import { formatShort, type ISODate } from '../../lib/dates';
 import type { Assessment, AssessmentType, BodyMeasurement, Grip, MobilityLog, RomMeasurement } from '../../db/types';
@@ -451,7 +452,7 @@ export function assessmentSummary(a: Assessment): string {
     case 'finger':
       return `${a.grip ? GRIP_LABELS[a.grip] : 'Grip'} ${a.edgeMm ?? '—'} mm · ${a.hangSec ?? '—'} s${a.weightKg ? ` @ ${a.weightKg > 0 ? '+' : ''}${a.weightKg} kg` : ''}`;
     case 'grade':
-      return a.grade == null ? '—' : a.grade < 0 ? 'VB' : `V${a.grade}`;
+      return gradeLabel(a.grade);
     default:
       return a.notes ?? 'Recorded';
   }

@@ -148,7 +148,7 @@ export interface ClimbEntry {
   style: ClimbStyle;
   wall: string;
   angle?: number | null;
-  /** V-grade number: -1 = VB, 0 = V0, ... */
+  /** Gym colour grade, easy to hard: 0 yellow, 1 blue, 2 purple, 3 green, 4 orange, 5 red, 6 black, 7 white */
   grade: number | null;
   name?: string | null;
   attempts: number;

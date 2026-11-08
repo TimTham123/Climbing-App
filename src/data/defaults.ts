@@ -72,7 +72,7 @@ export function defaultSettings(): Settings {
     cooldown: DEFAULT_COOLDOWN.map((i) => ({ ...i })),
     hangTemplate: defaultHangTemplate(),
     hangboardUnlocked: false,
-    historicalMaxGrade: 'V6–V7',
+    historicalMaxGrade: 'V6–V7 (before colour grades)',
     loadTargets: [],
     dismissedSuggestions: [],
     createdAt: Date.now(),

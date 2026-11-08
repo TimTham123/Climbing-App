@@ -4,6 +4,7 @@ import { deleteClimb, newClimb, saveClimb } from '../../db/repo';
 import { useProjects } from '../../hooks/data';
 import { CLIMB_STYLE_LABELS, HOLD_TYPES, WALL_TYPES, isBoardWall } from '../../data/programme';
 import { GRADES, gradeLabel } from '../../lib/grades';
+import { GradeSwatch } from '../GradePill';
 import type { ClimbEntry, ClimbStyle } from '../../db/types';
 import { clone } from '../../lib/id';
 import { db } from '../../db/db';
@@ -12,9 +13,10 @@ const STYLES = Object.keys(CLIMB_STYLE_LABELS) as ClimbStyle[];
 
 export function GradePicker({ value, onChange, testId }: { value: number | null; onChange: (g: number | null) => void; testId?: string }) {
   return (
-    <div className="chips scroll" data-testid={testId} role="radiogroup" aria-label="Grade">
-      {GRADES.slice(0, 14).map((g) => (
-        <button type="button" key={g} role="radio" aria-checked={value === g} className={`chip${value === g ? ' selected' : ''}`} onClick={() => onChange(value === g ? null : g)}>
+    <div className="grade-grid" data-testid={testId} role="radiogroup" aria-label="Grade">
+      {GRADES.map((g) => (
+        <button type="button" key={g} role="radio" aria-checked={value === g} aria-label={gradeLabel(g)} className={`chip${value === g ? ' selected' : ''}`} onClick={() => onChange(value === g ? null : g)}>
+          <GradeSwatch grade={g} size={14} />
           {gradeLabel(g)}
         </button>
       ))}
@@ -165,7 +167,7 @@ export function ClimbSheet({
             <Stepper label="Angle (°)" value={c.angle} onChange={(v) => set('angle', v)} step={5} min={0} max={70} size="sm" />
           </div>
         ) : (
-          <Field label="Name / colour">
+          <Field label="Name">
             <input className="input" value={c.name ?? ''} onChange={(e) => set('name', e.target.value || null)} placeholder="Optional" />
           </Field>
         )}

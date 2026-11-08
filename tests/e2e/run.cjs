@@ -181,11 +181,11 @@ async function main() {
 
     await step('Quick-log a climb, then edit and delete it from the log', async () => {
       await t('quick-climb').click();
-      await t('climb-grade').getByRole('radio', { name: 'V3', exact: true }).click();
+      await t('climb-grade').getByRole('radio', { name: 'Green', exact: true }).click();
       await t('climb-save').click();
       await page.waitForTimeout(300);
       await page.goto(BASE + '#/log');
-      await t('log-search').fill('V3');
+      await t('log-search').fill('green');
       await t('log-climb').first().click();
       await t('climb-attempts').getByRole('button', { name: /Increase/ }).click();
       await t('climb-save').click();
@@ -222,7 +222,7 @@ async function main() {
       await block.locator('.ex-head').click();
       await block.getByTestId('climb-minutes').getByRole('textbox').fill('55');
       await block.getByTestId('log-problem').click();
-      await t('climb-grade').getByRole('radio', { name: 'V5', exact: true }).click();
+      await t('climb-grade').getByRole('radio', { name: 'Red', exact: true }).click();
       await t('climb-save').click();
       await page.waitForTimeout(300);
       await block.getByTestId('problem-attempt').click();
@@ -231,7 +231,7 @@ async function main() {
       check((await block.innerText()).includes('2 attempts · sent'), 'attempt added and marked sent');
       await page.goto(BASE + '#/progress/week');
       await t('stat-top-grade').waitFor();
-      check((await t('stat-top-grade').innerText()).includes('V5'), 'week summary shows V5 sent');
+      check((await t('stat-top-grade').innerText()).includes('Red'), 'week summary shows Red sent');
       check((await t('stat-climb-time').innerText()).includes('55 min'), 'climbing time recorded');
     });
 

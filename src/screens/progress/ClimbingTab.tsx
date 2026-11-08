@@ -8,6 +8,7 @@ import { firstDataDate, weeklySeries } from '../../domain/summary';
 import { CLIMB_STYLE_LABELS, WALL_TYPES, isBoardWall } from '../../data/programme';
 import { formatDuration, formatShort, toISODate, type ISODate } from '../../lib/dates';
 import { gradeLabel } from '../../lib/grades';
+import { GradePill } from '../../components/GradePill';
 import { clone, uid } from '../../lib/id';
 import type { AllData } from '../../hooks/useAllData';
 import type { ClimbEntry, ClimbStyle, MoveStatus, Project } from '../../db/types';
@@ -103,7 +104,7 @@ export function ClimbingTab({ data, today, onOpenClimb }: { data: AllData; today
 
       <ChartCard title="Grade pyramid" sub="Sends by grade in this range (attempted in grey text)">
         {grades.length ? (
-          <HBars rows={grades.map((g) => ({ label: gradeLabel(g), value: sent.filter((c) => c.grade === g).length, note: `of ${inRange.filter((c) => c.grade === g).length}` }))} />
+          <HBars labelWidth={58} rows={grades.map((g) => ({ label: gradeLabel(g), value: sent.filter((c) => c.grade === g).length, note: `of ${inRange.filter((c) => c.grade === g).length}` }))} />
         ) : (
           <div className="small muted">No graded problems yet.</div>
         )}
@@ -155,7 +156,7 @@ export function ClimbingTab({ data, today, onOpenClimb }: { data: AllData; today
           .slice(0, 15)
           .map((c) => (
             <button key={c.id} className="list-item" onClick={() => onOpenClimb(c)}>
-              <span className={`grade-pill${c.sent ? ' sent' : ''}`}>{gradeLabel(c.grade)}</span>
+              <GradePill grade={c.grade} sent={c.sent} />
               <span className="grow">
                 <span className="small">{c.name || CLIMB_STYLE_LABELS[c.style]}</span>
                 <span className="xsmall muted" style={{ display: 'block' }}>
@@ -223,7 +224,7 @@ function ProjectList({ data, onOpen }: { data: AllData; onOpen: (p: Project) => 
         const st = projectStats(p, data.climbs);
         return (
           <button key={p.id} className="list-item" onClick={() => onOpen(p)}>
-            <span className={`grade-pill${p.status === 'sent' ? ' sent' : ''}`}>{gradeLabel(p.grade)}</span>
+            <GradePill grade={p.grade} sent={p.status === 'sent'} />
             <span className="grow">
               <span className="strong small">{p.name || 'Untitled project'}</span>
               <span className="xsmall muted" style={{ display: 'block' }}>

@@ -7,6 +7,7 @@ import { patchClimb, updateItem } from '../db/repo';
 import { fmtKg } from '../lib/format';
 import { formatShort, type ISODate } from '../lib/dates';
 import { gradeLabel } from '../lib/grades';
+import { GradePill } from '../components/GradePill';
 import { CLIMB_STYLE_LABELS } from '../data/programme';
 import type { ClimbEntry, SessionItem, SetLog, Settings } from '../db/types';
 import type { Suggestion } from '../domain/progression';
@@ -374,8 +375,8 @@ function ClimbBlock(p: ExerciseCardProps) {
       <div style={{ marginTop: 12 }}>
         {problems.map((c) => (
           <div className="problem-row" key={c.id}>
-            <button className={`grade-pill${c.sent ? ' sent' : ''}`} onClick={() => p.onEditProblem(c)} style={{ border: 0 }} aria-label={`Edit ${gradeLabel(c.grade)} problem`}>
-              {gradeLabel(c.grade)}
+            <button onClick={() => p.onEditProblem(c)} style={{ border: 0, background: 'none', padding: 0, color: 'inherit' }} aria-label={`Edit ${gradeLabel(c.grade)} problem`}>
+              <GradePill grade={c.grade} sent={c.sent} />
             </button>
             <button className="grow" style={{ background: 'none', border: 0, textAlign: 'left', padding: 0 }} onClick={() => p.onEditProblem(c)}>
               <div className="small ellipsis">{c.name || c.wall}{c.angle != null ? ` · ${c.angle}°` : ''}</div>

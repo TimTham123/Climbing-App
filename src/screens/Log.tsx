@@ -15,6 +15,7 @@ import { GRIP_LABELS } from '../data/defaults';
 import { romMetric } from '../data/library';
 import { formatDuration, formatLong, WEEKDAY_NAMES, type ISODate } from '../lib/dates';
 import { gradeLabel } from '../lib/grades';
+import { GradePill } from '../components/GradePill';
 import { categoryColor } from './SessionScreen';
 import type { Assessment, BodyMeasurement, CheckIn, ClimbEntry, HangSession, MobilityLog, RomMeasurement, Session } from '../db/types';
 
@@ -205,7 +206,7 @@ function EntryRow({ e, climbs }: { e: Entry; climbs: ClimbEntry[] }) {
     case 'climb':
       return (
         <>
-          <span className={`grade-pill${e.v.sent ? ' sent' : ''}`}>{gradeLabel(e.v.grade)}</span>
+          <GradePill grade={e.v.grade} sent={e.v.sent} />
           <span className="grow">
             <span className="small">{e.v.name || CLIMB_STYLE_LABELS[e.v.style]}</span>
             <span className="xsmall muted" style={{ display: 'block' }}>
