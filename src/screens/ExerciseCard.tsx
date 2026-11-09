@@ -157,6 +157,7 @@ function SetLogger(p: ExerciseCardProps) {
 
   const log = async () => {
     if (activeIdx == null) return;
+    if (settings.restTimer === 'auto') timer.prime(); // must run before the first await (iOS audio rule)
     const wasLast = !editingDone && done + 1 >= target;
     await updateItem(p.sessionId, item.id, (i) => {
       const s = i.sets[activeIdx];

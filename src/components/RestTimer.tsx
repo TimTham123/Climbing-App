@@ -9,13 +9,15 @@ interface TimerState {
 }
 
 interface TimerApi {
+  /** Call synchronously inside a tap, before any await, so iOS allows the end-of-rest beep. */
+  prime: () => void;
   start: (seconds: number, label?: string) => void;
   stop: () => void;
   active: boolean;
 }
 
 const KEY = 'ctt-rest-timer';
-const Ctx = createContext<TimerApi>({ start: () => {}, stop: () => {}, active: false });
+const Ctx = createContext<TimerApi>({ prime: () => {}, start: () => {}, stop: () => {}, active: false });
 
 let audio: AudioContext | null = null;
 
@@ -26,6 +28,12 @@ function unlockAudio() {
     if (!AC) return;
     if (!audio) audio = new AC();
     if (audio.state === 'suspended') void audio.resume();
+    // Playing a silent buffer inside the tap fully unlocks audio on iOS.
+    const buf = audio.createBuffer(1, 1, 22050);
+    const src = audio.createBufferSource();
+    src.buffer = buf;
+    src.connect(audio.destination);
+    src.start(0);
   } catch {
     audio = null;
   }
@@ -119,7 +127,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ start, stop, active: !!timer }}>
+    <Ctx.Provider value={{ prime: unlockAudio, start, stop, active: !!timer }}>
       {children}
       {timer && (
         <div className="timer-bar" data-testid="rest-timer">
